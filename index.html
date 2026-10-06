@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>바이브 커피 - 주문서</title>
+  <!-- CSS 스타일시트 연결 -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- [페이지 상단] 카페 헤더 -->
+  <header>
+    <div class="logo">☕</div>
+    <h1>바이브 커피</h1>
+    <p>당신의 하루에 바이브를 더하다</p>
+    <!-- 예상 금액 표시 영역: 카페 로고 및 이름 바로 아래 -->
+    <div id="estimatedPriceArea">
+      예상 금액: <span id="totalPrice">0</span>원
+    </div>
+  </header>
+
+  <main>
+    <!-- [탭 네비게이션 메뉴] -->
+    <nav class="tab-nav" aria-label="메인 탭 메뉴">
+      <button type="button" class="tab-btn active" id="tabOrderBtn">
+        ☕ 주문하기
+      </button>
+      <button type="button" class="tab-btn" id="tabHistoryBtn">
+        📋 주문 내역 <span class="tab-badge" id="orderCountBadge">0</span>
+      </button>
+    </nav>
+
+    <!-- [1. 주문하기 탭 영역] -->
+    <section id="orderTabSection" class="tab-content">
+      <!-- [주문서 폼] novalidate: 자바스크립트 유효성 검사를 위해 브라우저 기본 검증 비활성화 -->
+      <form id="orderForm" novalidate>
+      <!-- 1. 이름 (필수, text) -->
+      <div>
+        <label for="customerName">이름</label>
+        <input type="text" id="customerName" name="customerName">
+      </div>
+
+      <!-- 2. 전화번호 (tel) -->
+      <div>
+        <label for="phoneNumber">전화번호</label>
+        <input type="tel" id="phoneNumber" name="phoneNumber">
+      </div>
+
+      <!-- 3. 음료 선택 (드롭다운) -->
+      <div>
+        <label for="beverage">음료 선택</label>
+        <select id="beverage" name="beverage">
+          <option value="" data-price="0">-- 음료를 선택하세요 --</option>
+          <option value="americano" data-price="3500">아메리카노 3,500원</option>
+          <option value="caffe_latte" data-price="4000">카페라떼 4,000원</option>
+          <option value="caffe_mocha" data-price="4500">카페모카 4,500원</option>
+          <option value="vanilla_latte" data-price="4500">바닐라라떼 4,500원</option>
+          <option value="green_tea_latte" data-price="4500">녹차라떼 4,500원</option>
+          <option value="strawberry_latte" data-price="5000">딸기라떼 5,000원</option>
+          <option value="iced_tea" data-price="4000">아이스티 4,000원</option>
+        </select>
+      </div>
+
+      <!-- 4. 사이즈 (라디오버튼) -->
+      <fieldset>
+        <legend>사이즈</legend>
+        <div>
+          <input type="radio" id="sizeS" name="size" value="S" data-price="0" checked>
+          <label for="sizeS">S (+0원)</label>
+        </div>
+        <div>
+          <input type="radio" id="sizeM" name="size" value="M" data-price="500">
+          <label for="sizeM">M (+500원)</label>
+        </div>
+        <div>
+          <input type="radio" id="sizeL" name="size" value="L" data-price="1000">
+          <label for="sizeL">L (+1,000원)</label>
+        </div>
+      </fieldset>
+
+      <!-- 5. 추가 옵션 (체크박스) -->
+      <fieldset>
+        <legend>추가 옵션</legend>
+        <div>
+          <input type="checkbox" id="optionShot" name="option" value="shot" data-price="500">
+          <label for="optionShot">샷 추가 (+500원)</label>
+        </div>
+        <div>
+          <input type="checkbox" id="optionCream" name="option" value="cream" data-price="500">
+          <label for="optionCream">크림 추가 (+500원)</label>
+        </div>
+        <div>
+          <input type="checkbox" id="optionSyrup" name="option" value="syrup" data-price="300">
+          <label for="optionSyrup">시럽 추가 (+300원)</label>
+        </div>
+        <div>
+          <input type="checkbox" id="optionDecaf" name="option" value="decaf" data-price="0">
+          <label for="optionDecaf">디카페인 (+0원)</label>
+        </div>
+      </fieldset>
+
+      <!-- 6. 수량 (number) -->
+      <div>
+        <label for="quantity">수량</label>
+        <input type="number" id="quantity" name="quantity" min="1" max="10" value="1">
+      </div>
+
+      <!-- 음료 담기 버튼 -->
+      <div>
+        <button type="button" id="addToCartBtn">+ 이 음료 담기</button>
+      </div>
+
+      <!-- 담긴 음료 장바구니 목록 -->
+      <div id="cartSection" class="cart-section">
+        <label>담긴 음료 목록 (<span id="cartCount">0</span>개)</label>
+        <div id="cartItemsList" class="cart-items-list">
+          <p class="empty-cart-msg">담긴 음료가 없습니다. 음료를 골라 담아보세요!</p>
+        </div>
+      </div>
+
+      <!-- 선택/담긴 음료 컵 시각화 영역 (주문서 폼 내부) -->
+      <div id="drinkPreviewContainer" class="drink-preview-container">
+        <div class="preview-header">
+          <span class="preview-title" id="previewTitle">🥤 음료 미리보기</span>
+          <span class="preview-badge" id="previewBadge">선택 중</span>
+        </div>
+        <div id="drinkPreviewList" class="preview-drink-list">
+          <!-- 음료 컵 그래픽이 실시간으로 렌더링됩니다 -->
+        </div>
+      </div>
+
+      <!-- 7. 요청사항 (textarea) -->
+      <div>
+        <label for="requests">요청사항</label>
+        <textarea id="requests" name="requests" rows="4"></textarea>
+      </div>
+
+      <!-- 9 & 10. 주문하기 / 다시 작성 버튼 -->
+      <div>
+        <button type="submit" id="submitBtn">주문하기</button>
+        <button type="reset" id="resetBtn">다시 작성</button>
+      </div>
+    </form>
+
+    <!-- 11. 주문 확인 메시지 영역 (초기 상태 숨김) -->
+    <section id="orderConfirmation" style="display: none;">
+      <!-- JavaScript로 주문 완료 후 내용을 동적으로 표시할 예정 -->
+    </section>
+  </section>
+
+  <!-- [2. 주문 내역 탭 영역] (기본 숨김: hidden 클래스) -->
+  <section id="historyTabSection" class="tab-content hidden">
+    <div class="history-container">
+      <!-- 주문 목록이 들어갈 영역 -->
+      <div id="ordersList" class="orders-list">
+        <!-- renderOrders() 함수로 동적 생성 -->
+      </div>
+
+      <!-- 하단 총 주문 금액 및 저장 / 내역 지우기 버튼 -->
+      <div id="historySummary" class="history-summary hidden">
+        <div class="summary-text" id="totalOrdersSummary">총 주문 금액: 0원 (0건)</div>
+        <div class="history-actions">
+          <button type="button" id="clearAllOrdersBtn" class="clear-orders-btn">내역 모두 지우기</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+  <!-- ========================================== -->
+  <!-- 1. Supabase 공식 JS v2 라이브러리 (CDN)       -->
+  <!--    script.js보다 먼저 로드되어야 합니다.      -->
+  <!-- ========================================== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- 2. 바이브 커피 주문 처리 스크립트 연결 -->
+  <script src="script.js"></script>
+</body>
+</html>

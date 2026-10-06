@@ -1,0 +1,894 @@
+@charset "UTF-8";
+
+/* ===================================================
+   기본 스타일 및 변수 설정
+   =================================================== */
+:root {
+  --bg-color: #faf6f0;           /* 배경 베이지 */
+  --card-bg: #ffffff;            /* 카드 배경 흰색 */
+  --primary-color: #6b4226;       /* 주 색상 따뜻한 브라운 */
+  --primary-hover: #825232;       /* 버튼 호버 시 밝은 브라운 */
+  --primary-focus: rgba(107, 66, 38, 0.25); /* 포커스 섀도우 */
+  --text-color: #333333;          /* 기본 텍스트 색상 */
+  --text-muted: #777777;          /* 보조 텍스트 색상 */
+  --border-color: #e0d6cc;        /* 연한 테두리 색상 */
+  --success-bg: #eaf7ed;          /* 주문 확인 배경 (연두색) */
+  --success-text: #2e7d32;        /* 주문 확인 텍스트 (초록색) */
+  --border-radius: 8px;           /* 기본 둥근 모서리 */
+  --card-radius: 16px;            /* 메인 카드 모서리 */
+  --box-shadow: 0 4px 16px rgba(107, 66, 38, 0.08); /* 부드러운 그림자 */
+}
+
+/* 박스 사이징 전역 적용 */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 32px 16px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: '맑은 고딕', 'Malgun Gothic', sans-serif;
+  line-height: 1.5;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+/* ===================================================
+   공통 컨테이너 및 헤더 레이아웃 (최대 520px)
+   =================================================== */
+header, main {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* 상단 카페 로고 및 헤더 영역 */
+header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+header .logo {
+  font-size: 56px;
+  line-height: 1;
+  margin-bottom: 8px;
+  display: inline-block;
+  transform-origin: bottom center;
+  animation: gentleSway 3s ease-in-out infinite;
+}
+
+/* 카페 로고 흔들림 키프레임 애니메이션 */
+@keyframes gentleSway {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-6deg);
+  }
+  75% {
+    transform: rotate(6deg);
+  }
+}
+
+header h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+header p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ===================================================
+   탭 메뉴 스타일 (주문하기 / 📋 주문 내역)
+   =================================================== */
+.tab-nav {
+  display: flex;
+  gap: 16px;
+  border-bottom: 2px solid #ebd9c8;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 12px 14px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #a88267; /* 선택 안 된 탭: 연한 갈색 글씨 */
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 0;
+  transition: color 0.2s;
+  flex: none;
+}
+
+.tab-btn:hover {
+  color: var(--primary-color);
+  background: none;
+}
+
+/* 선택된 탭: 갈색 글씨 + 갈색 밑줄 */
+.tab-btn.active {
+  color: var(--primary-color);
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--primary-color);
+  border-radius: 3px 3px 0 0;
+}
+
+/* 탭 옆에 주문 건수 둥근 갈색 배지 */
+.tab-badge {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 12px;
+  line-height: 1.2;
+}
+
+/* ===================================================
+   주문 내역 탭 스타일
+   =================================================== */
+.history-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* 주문 내역 없을 때 안내 문구 */
+.empty-history-msg {
+  background-color: var(--card-bg);
+  border-radius: var(--card-radius);
+  box-shadow: var(--box-shadow);
+  padding: 40px 20px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* 개별 주문 카드 (베이지 카드, 왼쪽에 갈색 세로줄) */
+.order-history-card {
+  background-color: #faf6f0; /* 베이지 카드 */
+  border: 1px solid #ebd9c8;
+  border-left: 5px solid var(--primary-color); /* 왼쪽 갈색 세로줄 */
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(107, 66, 38, 0.06);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 1줄: #주문번호 이름 · 가격 */
+.card-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.order-title-info {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+/* 취소 버튼 (카드 오른쪽 위) */
+.order-cancel-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background-color: transparent;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  flex: none;
+  transition: all 0.2s;
+}
+
+.order-cancel-btn:hover {
+  background-color: #ffebee;
+  border-color: #c62828;
+}
+
+/* 2줄: 음료 및 옵션 내역 */
+.order-items-detail {
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+  line-height: 1.4;
+}
+
+/* 3줄: 요청사항 · 주문 시간 */
+.order-meta-info {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.order-request-tag {
+  background-color: #fff;
+  border: 1px solid #e0d6cc;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #555;
+}
+
+/* 주문 내역 하단 요약 */
+.history-summary {
+  background-color: var(--card-bg);
+  border-radius: var(--card-radius);
+  box-shadow: var(--box-shadow);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.summary-text {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.history-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.save-supabase-btn {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  flex: none;
+  transition: all 0.2s;
+}
+
+.save-supabase-btn:hover {
+  background-color: var(--primary-hover);
+}
+
+.save-supabase-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.clear-orders-btn {
+  background-color: #ffffff;
+  color: #c62828;
+  border: 1px solid #c62828;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  flex: none;
+  transition: all 0.2s;
+}
+
+.clear-orders-btn:hover {
+  background-color: #ffebee;
+}
+
+/* ===================================================
+   주문서 폼 레이아웃 (카드 형태)
+   =================================================== */
+#orderForm {
+  background-color: var(--card-bg);
+  border-radius: var(--card-radius);
+  box-shadow: var(--box-shadow);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 항목별 라벨 */
+#orderForm > div > label,
+fieldset legend {
+  display: block;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+/* 텍스트 입력, 전화번호, 드롭다운, 숫자, 텍스트에어리어 기본 스타일 */
+#orderForm input[type="text"],
+#orderForm input[type="tel"],
+#orderForm input[type="number"],
+#orderForm select,
+#orderForm textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-family: inherit;
+  font-size: 15px;
+  background-color: #fff;
+  color: var(--text-color);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* 텍스트에어리어 크기 조절 제어 */
+#orderForm textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* 포커스 효과 (갈색 테두리 + 연한 갈색 그림자) */
+#orderForm input[type="text"]:focus,
+#orderForm input[type="tel"]:focus,
+#orderForm input[type="number"]:focus,
+#orderForm select:focus,
+#orderForm textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-focus);
+}
+
+/* ===================================================
+   필드셋 (라디오버튼 & 체크박스) 스타일
+   =================================================== */
+fieldset {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 14px 16px 16px;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px; /* 가로 및 줄바꿈 시 간격 */
+  align-items: center;
+}
+
+fieldset legend {
+  padding: 0 6px;
+}
+
+/* 라디오 & 체크박스 개별 항목 (가로 나란히 배치) */
+fieldset > div {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+fieldset input[type="radio"],
+fieldset input[type="checkbox"] {
+  accent-color: var(--primary-color);
+  width: 17px;
+  height: 17px;
+  cursor: pointer;
+  margin: 0;
+}
+
+fieldset label {
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-color);
+  user-select: none;
+}
+
+/* ===================================================
+   예상 금액 표시 영역 (상단 헤더 내부)
+   =================================================== */
+#estimatedPriceArea {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-align: center;
+  margin-top: 14px;
+  padding: 10px 16px;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 8px rgba(107, 66, 38, 0.06);
+  display: inline-block;
+}
+
+#estimatedPriceArea span {
+  font-weight: 800;
+}
+
+/* ===================================================
+   버튼 그룹 스타일
+   =================================================== */
+#orderForm > div:last-child {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+button {
+  flex: 1;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+/* 음료 담기 버튼 (+ 이 음료 담기) */
+#addToCartBtn {
+  width: 100%;
+  background-color: #8c5b36;
+  color: #ffffff;
+  border: none;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+#addToCartBtn:hover {
+  background-color: #6b4226;
+}
+
+#addToCartBtn:active {
+  transform: scale(0.98);
+}
+
+/* ===================================================
+   장바구니 목록 (담긴 음료들)
+   =================================================== */
+.cart-section {
+  background-color: #fdfaf6;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 14px 16px;
+}
+
+.cart-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.empty-cart-msg {
+  margin: 8px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* 개별 담긴 음료 아이템 카드 */
+.cart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  border: 1px solid #ebd9c8;
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  gap: 10px;
+}
+
+.cart-item-info {
+  flex: 1;
+}
+
+.cart-item-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 2px;
+}
+
+.cart-item-options {
+  font-size: 12px;
+  color: #666;
+}
+
+.cart-item-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-color);
+  white-space: nowrap;
+}
+
+/* 삭제 버튼 */
+.cart-item-delete {
+  background: none;
+  border: none;
+  color: #d32f2f;
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px 8px;
+  cursor: pointer;
+  flex: 0;
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.cart-item-delete:hover {
+  opacity: 1;
+  transform: scale(1.15);
+  background: none;
+}
+
+/* 주문하기 버튼 */
+#submitBtn {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border: none;
+}
+
+#submitBtn:hover {
+  background-color: var(--primary-hover);
+}
+
+/* 다시 작성 버튼 */
+#resetBtn {
+  background-color: #ffffff;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+#resetBtn:hover {
+  background-color: #f5ece4;
+}
+
+/* ===================================================
+   주문 확인 메시지 박스 (연두색 배경, 초록 글씨)
+   =================================================== */
+#orderConfirmation {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid #c8e6c9;
+  border-radius: var(--card-radius);
+  padding: 24px 20px;
+  margin-top: 20px;
+  text-align: left;
+  box-shadow: var(--box-shadow);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+#orderConfirmation.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.confirm-badge {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1b5e20;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #a5d6a7;
+}
+
+.confirm-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #2e7d32;
+  margin-bottom: 10px;
+}
+
+.confirm-content {
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: var(--border-radius);
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.confirm-content p {
+  margin: 4px 0;
+}
+
+.confirm-total {
+  margin-top: 8px !important;
+  padding-top: 6px;
+  border-top: 1px solid #c8e6c9;
+  font-size: 16px;
+}
+
+.confirm-total span {
+  color: var(--primary-color);
+  font-weight: 800;
+}
+
+.confirm-guide {
+  text-align: center;
+  font-size: 13px;
+  color: #388e3c;
+  margin: 14px 0 0;
+}
+
+/* 버튼 로딩 비활성화 스타일 */
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ===================================================
+   유틸리티 클래스
+   =================================================== */
+.hidden {
+  display: none !important;
+}
+
+/* ===================================================
+   반응형 모바일 스타일
+   =================================================== */
+@media (max-width: 480px) {
+  body {
+    padding: 20px 12px;
+  }
+
+  #orderForm {
+    padding: 20px 16px;
+    gap: 16px;
+  }
+
+  fieldset {
+    gap: 10px 14px;
+  }
+
+  #estimatedPriceArea {
+    font-size: 20px;
+  }
+
+  button {
+    font-size: 15px;
+    padding: 11px;
+  }
+}
+
+/* ===================================================
+   음료 시각화 미리보기 영역 (주문서 폼 내부)
+   =================================================== */
+.drink-preview-container {
+  background: #fdfbf7;
+  border: 1px solid #e8ded4;
+  border-radius: var(--border-radius);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed var(--border-color);
+  padding-bottom: 6px;
+}
+
+.preview-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.preview-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  background-color: var(--primary-color);
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+/* 음료 컵 목록 컨테이너 */
+.preview-drink-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+  min-height: 80px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 8px 4px;
+}
+
+.preview-empty-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  width: 100%;
+  text-align: center;
+  margin: 24px 0;
+}
+
+/* 컵 래퍼 */
+.cup-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s ease;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.cup-item:hover {
+  transform: scale(1.08);
+}
+
+/* 현재 추가 중인 음료 컵 스타일 */
+.cup-item.draft-cup .cup-graphic {
+  border: 2px dashed var(--primary-color);
+  animation: pulseCup 1.5s ease-in-out infinite;
+}
+
+.cup-number.draft-number {
+  color: var(--primary-color);
+  font-weight: 800;
+}
+
+@keyframes pulseCup {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* CSS 순수 벡터 음료 컵 */
+.cup-graphic {
+  position: relative;
+  width: 36px;
+  border-bottom-left-radius: 9px;
+  border-bottom-right-radius: 9px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+/* 컵 리드(뚜껑) */
+.cup-graphic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 106%;
+  height: 6px;
+  background-color: #ffffff;
+  border-radius: 3px 3px 0 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  z-index: 3;
+}
+
+/* 사이즈별 컵 높이 */
+.cup-graphic.size-s {
+  height: 48px;
+  width: 34px;
+}
+.cup-graphic.size-m {
+  height: 56px;
+  width: 38px;
+}
+.cup-graphic.size-l {
+  height: 64px;
+  width: 42px;
+}
+
+/* 음료 내용물 */
+.cup-liquid {
+  width: 100%;
+  height: 82%;
+  position: relative;
+}
+
+/* 얼음 큐브 표현 */
+.cup-liquid::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+}
+
+/* 빨대 */
+.cup-straw {
+  position: absolute;
+  top: -12px;
+  right: 10px;
+  width: 4px;
+  height: 18px;
+  background: #2e7d32;
+  border-radius: 2px;
+  transform: rotate(12deg);
+  z-index: 1;
+}
+
+/* 음료 종류별 색상 */
+.liquid-americano { background: linear-gradient(to bottom, #3b2219, #1c0e09); }
+.liquid-caffe_latte { background: linear-gradient(to bottom, #d2a679, #9c683b); }
+.liquid-caffe_mocha { background: linear-gradient(to bottom, #6d4029, #381d11); }
+.liquid-vanilla_latte { background: linear-gradient(to bottom, #dfb788, #b07e4d); }
+.liquid-green_tea_latte { background: linear-gradient(to bottom, #98c27a, #567e3a); }
+.liquid-strawberry_latte { background: linear-gradient(to bottom, #f7abb8, #d44d68); }
+.liquid-iced_tea { background: linear-gradient(to bottom, #e2803b, #b35017); }
+
+/* 휘핑크림 옵션이 있을 때 상단 크림 */
+.cup-cream {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  width: 100%;
+  height: 12px;
+  background: #fffdf9;
+  border-radius: 6px 6px 0 0;
+  z-index: 2;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.cup-number {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* 모바일 화면 대응: 화면 가림 방지를 위해 크기 축소 */
+@media (max-width: 600px) {
+  .drink-preview-container {
+    bottom: 12px;
+    left: 12px;
+    max-width: 220px;
+    padding: 10px 12px;
+  }
+  .cup-graphic.size-s { height: 40px; width: 30px; }
+  .cup-graphic.size-m { height: 46px; width: 33px; }
+  .cup-graphic.size-l { height: 52px; width: 36px; }
+}
